@@ -14,7 +14,7 @@ services:
       - GIN_MODE=release
     networks:
       - launchpad-network
-      - traefik
+      -	traefik_default
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
@@ -49,5 +49,5 @@ volumes:
 networks:
   launchpad-network:
     driver: bridge
-  traefik:
+  traefik_default:
     external: true
