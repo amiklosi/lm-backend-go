@@ -21,7 +21,7 @@ RUN go install github.com/air-verse/air@latest
 # Final stage
 FROM alpine:latest
 
-RUN apk --no-cache add ca-certificates
+RUN apk --no-cache add ca-certificates curl
 
 WORKDIR /root/
 
