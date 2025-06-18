@@ -1,0 +1,7 @@
+FROM mysql:8.0
+
+# Copy the initialization script
+COPY init.sql /docker-entrypoint-initdb.d/01-init.sql
+
+# Set default command
+CMD ["mysqld", "--default-authentication-plugin=mysql_native_password", "--sql-mode="] 

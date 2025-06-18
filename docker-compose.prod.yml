@@ -24,7 +24,9 @@ services:
       retries: 3
 
   db:
-    image: mysql:8.0
+    build:
+      context: .
+      dockerfile: Dockerfile.mysql
     ports:
       - "3306:3306"
     environment:
@@ -32,10 +34,8 @@ services:
       - MYSQL_DATABASE=launchpad_db
       - MYSQL_USER=launchpad_user
       - MYSQL_PASSWORD=launchpad_password
-    command: --default-authentication-plugin=mysql_native_password --sql-mode=""
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
     networks:
       - launchpad-network
     restart: unless-stopped
