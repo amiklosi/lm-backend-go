@@ -118,7 +118,7 @@ func main() {
 
 	// Start server in a goroutine so we can print success message
 	go func() {
-		if err := r.Run(":" + port); err != nil {
+		if err := r.Run("0.0.0.0:" + port); err != nil {
 			log.Fatal("Failed to start server:", err)
 		}
 	}()

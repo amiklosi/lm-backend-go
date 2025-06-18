@@ -28,6 +28,7 @@ services:
       - "traefik.http.routers.launchpad.entrypoints=web-secure"
       - "traefik.http.routers.launchpad.tls.certresolver=certificato"
       - "traefik.http.services.launchpad.loadbalancer.server.port=8080"
+      - "traefik.docker.network=traefik_default"
 
   db:
     build:
