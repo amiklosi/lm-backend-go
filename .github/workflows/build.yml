@@ -59,12 +59,14 @@ jobs:
           context: .
           file: ./Dockerfile.mysql
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-mysql:${{ github.sha }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-mysql:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-mysql:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
       - name: Output image info
         if: github.event_name != 'pull_request'
         run: |
-          echo "Main app image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
-          echo "MySQL image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-mysql:${{ github.sha }}"
+          echo "Main app image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
+          echo "MySQL image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-mysql:latest"
