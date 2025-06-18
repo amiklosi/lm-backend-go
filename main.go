@@ -107,6 +107,7 @@ func main() {
 	if err := r.Run(":" + port); err != nil {
 		log.Fatal("Failed to start server:", err)
 	}
+	log.Printf("Server started on port %s", port)
 }
 
 func initDBWithRetry() {
