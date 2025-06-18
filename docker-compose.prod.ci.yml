@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   app:
-    image: ghcr.io/${GITHUB_REPOSITORY:-your-username/launchpad-manager-backend-go}:latest
+    image: ghcr.io/${GITHUB_REPOSITORY:-amiklosi/launchpad-manager-backend-go}:latest
     container_name: launchpad-manager-app
     restart: unless-stopped
     environment:
@@ -18,9 +18,9 @@ services:
       - launchpad-network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.launchpad.rule=Host(`launchpad.yourdomain.com`)"
-      - "traefik.http.routers.launchpad.entrypoints=websecure"
-      - "traefik.http.routers.launchpad.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.launchpad.rule=Host(`lmgo.launchpadmanager.com`)"
+      - "traefik.http.routers.launchpad.entrypoints=web-secure"
+      - "traefik.http.routers.launchpad.tls.certresolver=certificato"
       - "traefik.http.services.launchpad.loadbalancer.server.port=8080"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
@@ -30,7 +30,7 @@ services:
       start_period: 40s
 
   db:
-    image: ghcr.io/${GITHUB_REPOSITORY:-your-username/launchpad-manager-backend-go}-mysql:latest
+    image: ghcr.io/${GITHUB_REPOSITORY:-amiklosi/launchpad-manager-backend-go}-mysql:latest
     container_name: launchpad-manager-db
     restart: unless-stopped
     environment:
