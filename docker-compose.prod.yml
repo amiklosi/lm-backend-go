@@ -2,14 +2,14 @@ version: "3.8"
 
 services:
   app:
-    build: .
+    image: ghcr.io/amiklosi/launchpad-manager-backend-go:latest
     depends_on:
       - db
     environment:
       - DB_HOST=db
       - DB_PORT=3306
       - DB_USER=launchpad_user
-      - DB_PASSWORD=launchpad_password
+      - DB_PASSWORD=${DB_PASSWORD:-launchpad_password}
       - DB_NAME=launchpad_db
       - GIN_MODE=release
     networks:
@@ -31,19 +31,23 @@ services:
       - "traefik.docker.network=traefik_default"
 
   db:
-    build:
-      context: .
-      dockerfile: Dockerfile.mysql
+    image: ghcr.io/amiklosi/launchpad-manager-backend-go-mysql:latest
     environment:
-      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root_password}
       - MYSQL_DATABASE=launchpad_db
       - MYSQL_USER=launchpad_user
-      - MYSQL_PASSWORD=launchpad_password
+      - MYSQL_PASSWORD=${DB_PASSWORD:-launchpad_password}
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
       - launchpad-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-root_password}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
 volumes:
   mysql_data:
