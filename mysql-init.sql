@@ -1,3 +1,7 @@
+-- Set root password if not already set
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'simple_password';
+ALTER USER 'root'@'%' IDENTIFIED BY 'simple_password';
+
 -- Create database if it doesn't exist
 CREATE DATABASE IF NOT EXISTS launchpad_db;
 USE launchpad_db;
