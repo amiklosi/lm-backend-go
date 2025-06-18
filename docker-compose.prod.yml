@@ -35,7 +35,7 @@ services:
     command: --default-authentication-plugin=mysql_native_password --sql-mode=""
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
     networks:
       - launchpad-network
     restart: unless-stopped
