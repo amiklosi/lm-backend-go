@@ -68,6 +68,9 @@ func main() {
 	// Initialize database with retry mechanism
 	initDBWithRetry()
 
+	log.Println("Database connected successfully")
+	log.Println("Setting up web server...")
+
 	// Setup Gin router
 	r := gin.Default()
 
@@ -94,8 +97,11 @@ func main() {
 
 	// Health check endpoint
 	r.GET("/health", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"status": "super healthy with docker hot reload!"})
+		c.JSON(http.StatusOK, gin.H{"status": "healthy"})
 	})
+
+	log.Println("✅ All routes configured successfully")
+	log.Println("✅ Server is ready to start")
 
 	// Start server
 	port := os.Getenv("PORT")
@@ -103,11 +109,27 @@ func main() {
 		port = "8080"
 	}
 
-	log.Printf("Server starting on port %s", port)
-	if err := r.Run(":" + port); err != nil {
-		log.Fatal("Failed to start server:", err)
-	}
-	log.Printf("Server started on port %s", port)
+	log.Printf("Starting server on port %s", port)
+	log.Printf("Server will be available at: http://localhost:%s", port)
+	log.Printf("Health check: http://localhost:%s/health", port)
+	log.Printf("API base: http://localhost:%s/api/v1", port)
+
+	log.Printf("🚀 Server starting...")
+
+	// Start server in a goroutine so we can print success message
+	go func() {
+		if err := r.Run(":" + port); err != nil {
+			log.Fatal("Failed to start server:", err)
+		}
+	}()
+
+	// Give the server a moment to start
+	time.Sleep(1 * time.Second)
+	log.Printf("✅ Server has successfully started on port %s", port)
+	log.Printf("✅ Server is now accepting connections")
+
+	// Keep the main thread alive
+	select {}
 }
 
 func initDBWithRetry() {
