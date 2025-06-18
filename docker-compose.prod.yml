@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   app:
-    image: ghcr.io/amiklosi/launchpad-manager-backend-go:latest
+    image: ghcr.io/amiklosi/lm-backend-go:latest
     depends_on:
       - db
     environment:
@@ -31,7 +31,7 @@ services:
       - "traefik.docker.network=traefik_default"
 
   db:
-    image: ghcr.io/amiklosi/launchpad-manager-backend-go-mysql:latest
+    image: ghcr.io/amiklosi/lm-backend-go-mysql:latest
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root_password}
       - MYSQL_DATABASE=launchpad_db
