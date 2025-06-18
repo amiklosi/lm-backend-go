@@ -10,8 +10,8 @@ services:
     environment:
       - DB_HOST=db
       - DB_PORT=3306
-      - DB_USER=launchpad_user
-      - DB_PASSWORD=${DB_PASSWORD:-launchpad_password}
+      - DB_USER=root
+      - DB_PASSWORD=${MYSQL_ROOT_PASSWORD:-root_password}
       - DB_NAME=launchpad_db
       - GIN_MODE=release
     networks:
@@ -33,10 +33,9 @@ services:
       - MYSQL_USER=launchpad_user
       - MYSQL_PASSWORD=${DB_PASSWORD:-launchpad_password}
     command: >
-      --default-authentication-plugin=mysql_native_password
+      --authentication-policy=caching_sha2_password
       --sql-mode=""
       --bind-address=0.0.0.0
-      --skip-name-resolve
     volumes:
       - mysql_data:/var/lib/mysql
       - ./mysql-init.sql:/docker-entrypoint-initdb.d/01-init.sql

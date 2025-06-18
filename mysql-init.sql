@@ -23,6 +23,9 @@ CREATE TABLE IF NOT EXISTS users (
     FOREIGN KEY (key_id) REFERENCES licenses(id)
 );
 
+-- Create user with proper authentication method
+CREATE USER IF NOT EXISTS 'launchpad_user'@'%' IDENTIFIED WITH caching_sha2_password BY 'launchpad_password';
+
 -- Grant permissions to the user from any host
 GRANT ALL PRIVILEGES ON launchpad_db.* TO 'launchpad_user'@'%';
 FLUSH PRIVILEGES; 
