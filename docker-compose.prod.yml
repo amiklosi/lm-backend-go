@@ -3,8 +3,6 @@ version: "3.8"
 services:
   app:
     build: .
-    ports:
-      - "8080:8080"
     depends_on:
       - db
     environment:
@@ -16,19 +14,24 @@ services:
       - GIN_MODE=release
     networks:
       - launchpad-network
+      - traefik
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
       timeout: 10s
       retries: 3
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.launchpad.rule=Host(`lmgo.launchpadmanager.com`)"
+      - "traefik.http.routers.launchpad.entrypoints=websecure"
+      - "traefik.http.routers.launchpad.tls.certresolver=certificato"
+      - "traefik.http.services.launchpad.loadbalancer.server.port=8080"
 
   db:
     build:
       context: .
       dockerfile: Dockerfile.mysql
-    ports:
-      - "3306:3306"
     environment:
       - MYSQL_ROOT_PASSWORD=root_password
       - MYSQL_DATABASE=launchpad_db
@@ -46,3 +49,5 @@ volumes:
 networks:
   launchpad-network:
     driver: bridge
+  traefik:
+    external: true
