@@ -10,18 +10,23 @@ A Go-based backend service for managing software licenses with MySQL database, c
 - MySQL database with GORM ORM
 - Docker containerization
 - Ready for Portainer deployment
+- **CI/CD with GitHub Actions**
 
 ## Project Structure
 
 ```
 launchpad-manager-backend-go/
-├── docker-compose.yml    # Docker Compose configuration
-├── Dockerfile           # Multi-stage Docker build
-├── go.mod              # Go module dependencies
-├── go.sum              # Go module checksums
-├── main.go             # Main application code
-├── init.sql            # Database initialization script
-└── README.md           # This file
+├── .github/workflows/build.yml  # GitHub Actions CI/CD pipeline
+├── docker-compose.yml           # Docker Compose configuration
+├── docker-compose.prod.ci.yml   # Production compose for CI/CD
+├── Dockerfile                   # Multi-stage Docker build
+├── Dockerfile.mysql             # MySQL image with init script
+├── go.mod                      # Go module dependencies
+├── go.sum                      # Go module checksums
+├── main.go                     # Main application code
+├── init.sql                    # Database initialization script
+├── env.example                 # Environment variables template
+└── README.md                   # This file
 ```
 
 ## Database Schema
@@ -188,6 +193,131 @@ This stack is ready for Portainer deployment. Simply:
 4. Deploy the stack
 
 The application will be available on port 8080 of your host machine.
+
+## CI/CD with GitHub Actions
+
+This project includes a complete CI/CD pipeline using GitHub Actions that automatically builds and pushes Docker images to GitHub Container Registry.
+
+### Pipeline Overview
+
+The CI/CD pipeline builds and pushes two Docker images:
+
+1. **Main Application**: `ghcr.io/your-username/launchpad-manager-backend-go`
+2. **MySQL Database**: `ghcr.io/your-username/launchpad-manager-backend-go-mysql`
+
+### Setup Instructions
+
+#### 1. Repository Setup
+
+1. **Push your code to GitHub:**
+
+   ```bash
+   git add .
+   git commit -m "Add CI/CD pipeline"
+   git push origin main
+   ```
+
+2. **Enable GitHub Actions:**
+   - Go to your repository on GitHub
+   - Navigate to Settings → Actions → General
+   - Ensure "Allow all actions and reusable workflows" is selected
+
+#### 2. Container Registry Access
+
+The pipeline automatically uses GitHub Container Registry (ghcr.io). No additional configuration needed - it uses the built-in `GITHUB_TOKEN`.
+
+### Pipeline Details
+
+#### Build Job
+
+- Runs on Ubuntu latest
+- Sets up Docker Buildx for efficient builds
+- Logs in to GitHub Container Registry
+- Builds both app and MySQL images
+- Pushes images with multiple tags:
+  - `latest` (only on main branch)
+  - `main` (branch name)
+  - `sha-{commit-hash}` (commit-specific)
+- Uses GitHub Actions cache for faster builds
+
+#### Image Tags
+
+The pipeline creates the following tags:
+
+- `latest`: Latest version from main branch
+- `main`: Current main branch
+- `main-{sha}`: Specific commit on main branch
+- `pr-{number}`: Pull request builds (not pushed to registry)
+
+### Production Deployment
+
+To deploy using the built images:
+
+1. **Set up environment variables:**
+
+   ```bash
+   cp env.example .env
+   # Edit .env with your values
+   ```
+
+2. **Deploy with production compose:**
+
+   ```bash
+   docker-compose -f docker-compose.prod.ci.yml up -d
+   ```
+
+### Environment Variables for Production
+
+Set these environment variables in your `.env` file:
+
+```bash
+# GitHub Repository (replace with your actual repository)
+GITHUB_REPOSITORY=your-username/launchpad-manager-backend-go
+
+# Database Configuration
+DB_PASSWORD=your_secure_password_here
+MYSQL_ROOT_PASSWORD=your_secure_root_password_here
+```
+
+### Manual Image Building
+
+If you need to build images manually:
+
+```bash
+# Build and push main application
+docker build -t ghcr.io/your-username/launchpad-manager-backend-go:latest .
+docker push ghcr.io/your-username/launchpad-manager-backend-go:latest
+
+# Build and push MySQL image
+docker build -f Dockerfile.mysql -t ghcr.io/your-username/launchpad-manager-backend-go-mysql:latest .
+docker push ghcr.io/your-username/launchpad-manager-backend-go-mysql:latest
+```
+
+### Monitoring the Pipeline
+
+- View pipeline runs in the "Actions" tab of your GitHub repository
+- Check build logs for any issues
+- Monitor image pushes in the "Packages" tab
+
+### Troubleshooting CI/CD
+
+#### Common Issues
+
+1. **Build failures:**
+
+   - Check Dockerfile syntax
+   - Verify all dependencies are in go.mod
+   - Ensure Docker context is correct
+
+2. **Push failures:**
+
+   - Check repository permissions
+   - Verify GITHUB_TOKEN has package write access
+   - Ensure repository name matches exactly
+
+3. **Cache issues:**
+   - Clear GitHub Actions cache if builds are slow
+   - Check cache hit rates in build logs
 
 ## Development
 
