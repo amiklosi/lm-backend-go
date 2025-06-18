@@ -1,0 +1,23 @@
+# Config file for Air (https://github.com/cosmtrek/air)
+root = "."
+
+tmp_dir = ".air_tmp"
+
+[build]
+  cmd = "go build -o ./tmp/main ."
+  bin = "./tmp/main"
+  follow_symlink = true
+  poll = true
+
+[log]
+  time = true
+
+[color]
+  main = "yellow"
+  watcher = "cyan"
+  build = "green"
+  runner = "magenta"
+  error = "red"
+
+[screen]
+  clear_on_rebuild = true
