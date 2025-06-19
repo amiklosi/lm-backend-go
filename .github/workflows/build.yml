@@ -17,8 +17,8 @@ jobs:
       contents: read
       packages: write
     outputs:
-      app-image: ${{ steps.app-image.outputs.image }}
-      mysql-image: ${{ steps.mysql-image.outputs.image }}
+      app-image: ${{ steps.app-image-output.outputs.image }}
+      mysql-image: ${{ steps.mysql-image-output.outputs.image }}
 
     steps:
       - name: Checkout repository
@@ -57,6 +57,13 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Set app image output
+        id: app-image-output
+        run: |
+          # Get the first tag (latest) for deployment
+          APP_TAG=$(echo "${{ steps.meta.outputs.tags }}" | head -n1)
+          echo "image=$APP_TAG" >> $GITHUB_OUTPUT
+
       - name: Build and push MySQL image
         id: mysql-image
         uses: docker/build-push-action@v5
@@ -70,11 +77,16 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Set mysql image output
+        id: mysql-image-output
+        run: |
+          echo "image=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-mysql:latest" >> $GITHUB_OUTPUT
+
       - name: Output image info
         if: github.event_name != 'pull_request'
         run: |
-          echo "Main app image: ${{ steps.app-image.outputs.image }}"
-          echo "MySQL image: ${{ steps.mysql-image.outputs.image }}"
+          echo "Main app image: ${{ steps.app-image-output.outputs.image }}"
+          echo "MySQL image: ${{ steps.mysql-image-output.outputs.image }}"
 
   deploy:
     needs: build
