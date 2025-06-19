@@ -70,3 +70,27 @@ jobs:
         run: |
           echo "Main app image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
           echo "MySQL image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-mysql:latest"
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Make deploy script executable
+        run: chmod +x deploy.sh
+
+      - name: Deploy to Portainer
+        env:
+          PORTAINER_URL: ${{ secrets.PORTAINER_URL }}
+          PORTAINER_USERNAME: ${{ secrets.PORTAINER_USERNAME }}
+          PORTAINER_PASSWORD: ${{ secrets.PORTAINER_PASSWORD }}
+          STACK_ID: ${{ secrets.STACK_ID }}
+          ENDPOINT_ID: ${{ secrets.ENDPOINT_ID }}
+        run: ./deploy.sh
