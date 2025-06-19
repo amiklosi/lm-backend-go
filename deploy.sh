@@ -59,15 +59,12 @@ fi
 
 echo "Authentication successful"
 
-# Create a temporary compose file with the specific image tags
-echo "Creating deployment compose file..."
-TEMP_COMPOSE=$(mktemp)
-cat docker-compose.prod.yml | \
-  sed "s|image: ghcr.io/amiklosi/lm-backend-go:latest|image: $APP_IMAGE|g" | \
-  sed "s|image: ghcr.io/amiklosi/lm-backend-go-mysql:latest|image: $MYSQL_IMAGE|g" > "$TEMP_COMPOSE"
+echo "using images:"
+echo "  App: $APP_IMAGE"
+echo "  MySQL: $MYSQL_IMAGE"
 
 # Read the modified compose file
-STACKFILE=$(cat "$TEMP_COMPOSE")
+STACKFILE=$(cat docker-compose.prod.yml)
 
 echo "Stackfile: $STACKFILE"
 
@@ -86,8 +83,10 @@ RESULT=$(curl -s -X PUT "$PORTAINER_URL/api/stacks/$STACK_ID?endpointId=$ENDPOIN
   -H "Content-Type: application/json" \
   -d "$(jq -n \
     --arg stackfile "$STACKFILE" \
+    --arg app_image "$APP_IMAGE" \
+    --arg mysql_image "$MYSQL_IMAGE" \
     '{
-      env: [{"name":"BACKEND_IMAGE_TAG","value":"latest"}],
+      env: [{"name":"BACKEND_IMAGE_TAG","value":$app_image}, {"name":"MYSQL_IMAGE_TAG","value":$mysql_image}],
       prune: true,
       pullImage: true,
       stackFileContent: $stackfile
