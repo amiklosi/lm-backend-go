@@ -123,7 +123,11 @@ jobs:
           APP_IMAGE: ${{ needs.build.outputs.app-image }}
           MYSQL_IMAGE: ${{ needs.build.outputs.mysql-image }}
         run: |
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          APP_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main-${SHORT_SHA}"
+          MYSQL_TAG="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-mysql:${{ github.sha }}"
           echo "Deploying with images:"
-          echo "  App: ${{ needs.build.outputs.app-image }}"
-          echo "  MySQL: ${{ needs.build.outputs.mysql-image }}"
-          ./deploy.sh "$APP_IMAGE" "$MYSQL_IMAGE"
+          echo "  App: $APP_IMAGE"
+          echo "  MySQL: $MYSQL_TAG"
+
+          ./deploy.sh "$APP_IMAGE" "$MYSQL_TAG"
