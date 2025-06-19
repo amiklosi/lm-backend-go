@@ -119,6 +119,6 @@ jobs:
           MYSQL_IMAGE: ${{ needs.build.outputs.mysql-image }}
         run: |
           echo "Deploying with images:"
-          echo "  App: $APP_IMAGE"
-          echo "  MySQL: $MYSQL_IMAGE"
+          echo "  App: ${{ needs.build.outputs.app-image }}"
+          echo "  MySQL: ${{ needs.build.outputs.mysql-image }}"
           ./deploy.sh "$APP_IMAGE" "$MYSQL_IMAGE"
