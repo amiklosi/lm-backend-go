@@ -60,9 +60,11 @@ jobs:
       - name: Set app image output
         id: app-image-output
         run: |
-          # Get the commit-specific tag (main-{sha})
-          APP_TAG="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main-${{ github.sha }}"
+          # Use short commit SHA for cleaner tags
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          APP_TAG="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main-${SHORT_SHA}"
           echo "image=$APP_TAG" >> $GITHUB_OUTPUT
+          echo "App image tag: $APP_TAG"
 
       - name: Build and push MySQL image
         id: mysql-image
@@ -80,8 +82,11 @@ jobs:
       - name: Set mysql image output
         id: mysql-image-output
         run: |
-          # Use the commit-specific tag
-          echo "image=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-mysql:${{ github.sha }}" >> $GITHUB_OUTPUT
+          # Use short commit SHA for cleaner tags
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          MYSQL_TAG="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-mysql:${SHORT_SHA}"
+          echo "image=$MYSQL_TAG" >> $GITHUB_OUTPUT
+          echo "MySQL image tag: $MYSQL_TAG"
 
       - name: Output image info
         if: github.event_name != 'pull_request'
@@ -113,4 +118,8 @@ jobs:
           ENDPOINT_ID: ${{ secrets.ENDPOINT_ID }}
           APP_IMAGE: ${{ needs.build.outputs.app-image }}
           MYSQL_IMAGE: ${{ needs.build.outputs.mysql-image }}
-        run: ./deploy.sh "$APP_IMAGE" "$MYSQL_IMAGE"
+        run: |
+          echo "Deploying with images:"
+          echo "  App: $APP_IMAGE"
+          echo "  MySQL: $MYSQL_IMAGE"
+          ./deploy.sh "$APP_IMAGE" "$MYSQL_IMAGE"
