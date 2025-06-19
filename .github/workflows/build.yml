@@ -107,7 +107,7 @@ jobs:
           ENDPOINT_ID: ${{ secrets.ENDPOINT_ID }}
         run: |
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
-          APP_TAG="${SHORT_SHA}"
+          APP_TAG="main-${SHORT_SHA}"
           MYSQL_TAG="${{ github.sha }}"
           echo "Deploying with images:"
           echo "  App: $APP_TAG"
