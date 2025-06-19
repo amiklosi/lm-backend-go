@@ -60,8 +60,8 @@ jobs:
       - name: Set app image output
         id: app-image-output
         run: |
-          # Get the first tag (latest) for deployment
-          APP_TAG=$(echo "${{ steps.meta.outputs.tags }}" | head -n1)
+          # Get the commit-specific tag (main-{sha})
+          APP_TAG="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main-${{ github.sha }}"
           echo "image=$APP_TAG" >> $GITHUB_OUTPUT
 
       - name: Build and push MySQL image
@@ -80,7 +80,8 @@ jobs:
       - name: Set mysql image output
         id: mysql-image-output
         run: |
-          echo "image=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-mysql:latest" >> $GITHUB_OUTPUT
+          # Use the commit-specific tag
+          echo "image=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-mysql:${{ github.sha }}" >> $GITHUB_OUTPUT
 
       - name: Output image info
         if: github.event_name != 'pull_request'
