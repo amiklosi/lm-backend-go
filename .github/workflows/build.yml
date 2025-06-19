@@ -95,7 +95,6 @@ jobs:
 
       - name: Echo mysql
         run: |
-          # Use short commit SHA for cleaner tags
           MYSQL_TAG="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-mysql:${{ github.sha }}"
           echo "MySQL image tag: $MYSQL_TAG"
 
@@ -108,10 +107,10 @@ jobs:
           ENDPOINT_ID: ${{ secrets.ENDPOINT_ID }}
         run: |
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
-          APP_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main-${SHORT_SHA}"
-          MYSQL_TAG="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-mysql:${{ github.sha }}"
+          APP_TAG="${SHORT_SHA}"
+          MYSQL_TAG="${{ github.sha }}"
           echo "Deploying with images:"
-          echo "  App: $APP_IMAGE"
+          echo "  App: $APP_TAG"
           echo "  MySQL: $MYSQL_TAG"
 
-          ./deploy.sh "$APP_IMAGE" "$MYSQL_TAG"
+          ./deploy.sh "$APP_TAG" "$MYSQL_TAG"
