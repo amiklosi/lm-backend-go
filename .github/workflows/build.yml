@@ -108,6 +108,11 @@ jobs:
       - name: Make deploy script executable
         run: chmod +x deploy.sh
 
+      - name: Echo app and mysql image tags
+        run: |
+          echo "App image tag: ${{ needs.build.outputs.app-image }}"
+          echo "MySQL image tag: ${{ needs.build.outputs.mysql-image }}"
+
       - name: Deploy to Portainer
         env:
           PORTAINER_URL: ${{ secrets.PORTAINER_URL }}
