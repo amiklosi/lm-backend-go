@@ -57,14 +57,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Set app image output
-        id: app-image-output
-        run: |
-          # Use short commit SHA for cleaner tags
-          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
-          APP_TAG="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main-${SHORT_SHA}"
-          echo "image=$APP_TAG" >> $GITHUB_OUTPUT
-          echo "App image tag: $APP_TAG"
 
       - name: Build and push MySQL image
         id: mysql-image
@@ -78,20 +70,6 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-mysql:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-      - name: Set mysql image output
-        id: mysql-image-output
-        run: |
-          # Use short commit SHA for cleaner tags
-          MYSQL_TAG="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-mysql:${{ github.sha }}"
-          echo "image=$MYSQL_TAG" >> $GITHUB_OUTPUT
-          echo "MySQL image tag: $MYSQL_TAG"
-
-      - name: Output image info
-        if: github.event_name != 'pull_request'
-        run: |
-          echo "Main app image: ${{ steps.app-image-output.outputs.image }}"
-          echo "MySQL image: ${{ steps.mysql-image-output.outputs.image }}"
 
   deploy:
     needs: build
@@ -108,10 +86,18 @@ jobs:
       - name: Make deploy script executable
         run: chmod +x deploy.sh
 
-      - name: Echo app and mysql image tags
+      - name: Echo app image
         run: |
-          echo "App image tag: ${{ needs.build.outputs.app-image }}"
-          echo "MySQL image tag: ${{ needs.build.outputs.mysql-image }}"
+          # Use short commit SHA for cleaner tags
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          APP_TAG="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main-${SHORT_SHA}"
+          echo "App image tag: $APP_TAG"
+
+      - name: Echo mysql
+        run: |
+          # Use short commit SHA for cleaner tags
+          MYSQL_TAG="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-mysql:${{ github.sha }}"
+          echo "MySQL image tag: $MYSQL_TAG"
 
       - name: Deploy to Portainer
         env:
@@ -120,8 +106,6 @@ jobs:
           PORTAINER_PASSWORD: ${{ secrets.PORTAINER_PASSWORD }}
           STACK_ID: ${{ secrets.STACK_ID }}
           ENDPOINT_ID: ${{ secrets.ENDPOINT_ID }}
-          APP_IMAGE: ${{ needs.build.outputs.app-image }}
-          MYSQL_IMAGE: ${{ needs.build.outputs.mysql-image }}
         run: |
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
           APP_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main-${SHORT_SHA}"
