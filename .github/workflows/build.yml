@@ -83,8 +83,7 @@ jobs:
         id: mysql-image-output
         run: |
           # Use short commit SHA for cleaner tags
-          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
-          MYSQL_TAG="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-mysql:${SHORT_SHA}"
+          MYSQL_TAG="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-mysql:${github.sha}"
           echo "image=$MYSQL_TAG" >> $GITHUB_OUTPUT
           echo "MySQL image tag: $MYSQL_TAG"
 
