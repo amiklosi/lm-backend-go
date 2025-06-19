@@ -16,6 +16,9 @@ jobs:
     permissions:
       contents: read
       packages: write
+    outputs:
+      app-image: ${{ steps.app-image.outputs.image }}
+      mysql-image: ${{ steps.mysql-image.outputs.image }}
 
     steps:
       - name: Checkout repository
@@ -43,6 +46,7 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push main application image
+        id: app-image
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -54,6 +58,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Build and push MySQL image
+        id: mysql-image
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -68,8 +73,8 @@ jobs:
       - name: Output image info
         if: github.event_name != 'pull_request'
         run: |
-          echo "Main app image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
-          echo "MySQL image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-mysql:latest"
+          echo "Main app image: ${{ steps.app-image.outputs.image }}"
+          echo "MySQL image: ${{ steps.mysql-image.outputs.image }}"
 
   deploy:
     needs: build
@@ -93,4 +98,6 @@ jobs:
           PORTAINER_PASSWORD: ${{ secrets.PORTAINER_PASSWORD }}
           STACK_ID: ${{ secrets.STACK_ID }}
           ENDPOINT_ID: ${{ secrets.ENDPOINT_ID }}
-        run: ./deploy.sh
+          APP_IMAGE: ${{ needs.build.outputs.app-image }}
+          MYSQL_IMAGE: ${{ needs.build.outputs.mysql-image }}
+        run: ./deploy.sh "$APP_IMAGE" "$MYSQL_IMAGE"
