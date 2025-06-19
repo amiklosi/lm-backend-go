@@ -45,6 +45,7 @@ fi
 
 echo "Starting deployment to Portainer..."
 
+
 # Get authentication token
 echo "Authenticating with Portainer..."
 TOKEN=$(curl -s -X POST "$PORTAINER_URL/api/auth" \
@@ -67,6 +68,8 @@ cat docker-compose.prod.yml | \
 
 # Read the modified compose file
 STACKFILE=$(cat "$TEMP_COMPOSE")
+
+echo "Stackfile: $STACKFILE"
 
 if [ -z "$STACKFILE" ]; then
     echo "Error: Could not read modified compose file"
